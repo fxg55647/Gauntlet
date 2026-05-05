@@ -39,7 +39,25 @@ Client request
    ESCALATE → stricter re-analysis before final decision
 ```
 
-The decision engine is strictly **additive** — no signal can lower the protection level. A `no` from any module is absorbing.
+The decision engine applies configurable voting logic across module verdicts:
+
+```json
+{
+  "decision_mode": "paranoid",
+  "min_protection_level": "consensus"
+}
+```
+
+| Mode | Logic | Default for |
+|---|---|---|
+| `paranoid` | One NO stops all | High-risk agents, tool execution |
+| `consensus` | Majority decides | Standard chat |
+| `weighted` | Score-weighted vote | Tuned pipelines |
+| `threshold` | Average score over limit | Read-only, low-risk |
+
+`min_protection_level` sets a floor — the deployment can restrict which modes are permitted. A read-only summarizer may allow `threshold`. An agent with file write access may enforce `paranoid` regardless of caller configuration.
+
+No configuration can lower protection below the deployment minimum.
 
 ---
 
