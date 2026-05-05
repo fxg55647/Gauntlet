@@ -2,7 +2,7 @@
 
 > **Every input runs the gauntlet.**
 
-Gauntlet is a modular security proxy for LLM pipelines. Drop it in front of any LLM API and every input is forced through a configurable manifold of security modules before it reaches the model. The different parts of the system work mostly in parallel, keeping latency low.
+Gauntlet is a modular security proxy for LLM pipelines. Drop it in front of any LLM API and every input is forced through a configurable manifold of security modules before any potentially harmful instructions are executed. The different parts of the system work mostly in parallel, keeping latency low.
 
 Prompt injection has been treated as a chess match played under the same rules by both sides. Gauntlet changes this. The attacker must commit to a single move — one static input that must defeat every defence simultaneously, decided in advance. The defender plays with unlimited time and compute: shuffle, re-analyse, add passes, escalate, read the judge's logprobs, call a second opinion. No clock, no material constraints.
 
