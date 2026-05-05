@@ -31,7 +31,7 @@ Client request
 │  [Module C: PIGuard]        │  ← Context-aware intent check
 │  [Module D: Regex]          │  ← Known pattern blocklist
 │                             │
-│  Decision Engine            │  ← Absorbing logic: one NO stops all
+│  Decision Engine            │  ← Absorbing logic: one NO stops all (unless configured otherwise)
 └─────────────────────────────┘
       ↓
    GO       → forwarded to LLM
