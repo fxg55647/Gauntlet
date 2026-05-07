@@ -1,8 +1,10 @@
 # Gauntlet — Vision & Theory
 
-This document explains why Gauntlet is built the way it is, where it is going, and the theoretical foundation behind its design.
+This document explains why Gauntlet is built the way it is and where it is going.
 
 ---
+
+# Part I — Theory
 
 ## Why in-model defence doesn't work
 
@@ -38,132 +40,13 @@ As analysis passes increase, θ_gauntlet and θ_iteration rise monotonically whi
 
 **Attacks require coherent structure. Detection does not.**
 
-### The attacker's arsenal is finite
+---
+
+## The attacker's arsenal is finite
 
 Language is finite. Every obfuscation technique, every roleplay bypass, every encoding trick occupies a region of the semantic space. Each time a new technique is detected and added to the network, that region is closed. The attacker must find a new technique. The defender adds one rule.
 
 Eventually the attacker's remaining space is so constrained that any input coherent enough to work as an injection is detectable. The endpoint is not reached by training a better model — it is reached by systematically exhausting the space of viable attacks.
-
----
-
-## The federated threat network
-
-### Collective immunity
-
-No single operator can cover all languages, dialects, encodings, and cultural contexts. A Spanish-language attack pattern discovered by one instance is unknown to a Finnish deployment. The federated network closes this gap: instances share abstract attack structures — not raw content — so every participant benefits from every discovery.
-
-### Additive-only signals
-
-The network can only tighten protection. No external signal can lower an instance's protection level below its local baseline. An attacker who floods the network with false signals drives all instances toward maximum scrutiny — the worst-case outcome of a poisoning attempt is degraded availability, not a security breach.
-
-### Sharing without exposure
-
-Instances share the *structure* of an attack, not the content. Zero-knowledge proofs allow an instance to prove it has observed a pattern matching a known attack class without revealing the input itself. Privacy is preserved. The network learns anyway.
-
-### Trust model
-
-- **Staking** — instances post a bond to join. False signals result in slashing.
-- **Decaying trust score** — inactive or inaccurate instances lose voting weight over time.
-- **Consensus threshold** — a signal requires confirmation from multiple instances before propagating.
-- **Cryptographic identity** — every signal is signed. Unsigned signals are discarded.
-- **Three-layer verification** — economic (staking), behavioural (track record), operational (token reporting).
-
-### Public and private rings
-
-Not all threat intelligence is shareable. A three-ring model:
-
-- **Public core** — open to all, basic patterns, low barrier
-- **Private consortia** — banks, governments, sector-specific groups sharing sensitive signals within a trusted boundary
-- **Bridge layer** — sufficiently anonymised signals can graduate from private to public
-
-This mirrors how traditional threat intelligence (ISACs) works, but with cryptographic enforcement instead of legal agreements.
-
-### Epidemic response
-
-When multiple instances simultaneously report a novel attack pattern, the network enters elevated threat mode. All instances tighten their analysis automatically. When the pattern subsides, they return to baseline. The analogy is an immune system that learns at population level.
-
----
-
-## Social engineering defence
-
-Prompt injection and social engineering are the same problem at different levels. Both attempt to install a foreign intent into a trusted process. Gauntlet's structural analysis applies to both.
-
-### Psychological triggers as signals
-
-Social engineering relies on urgency, authority, sympathy, and scarcity. These are detectable patterns. Critically: the more pressure an input applies, the stronger the signal. A message that creates extreme urgency and requests an irreversible action is not more likely to be legitimate — it is more likely to be an attack.
-
-**The attacker's most effective weapon is also their strongest signal.**
-
-### Guardian mode
-
-In guardian mode, Gauntlet analyses incoming communications on behalf of a human user — not just inputs to an LLM. The same structural analysis that detects prompt injection detects romance scam patterns, fake authority impersonation, and social engineering scripts.
-
-Gauntlet does not need to block the message. It can annotate it: *"This message contains urgency signals combined with a financial request. Risk: high."* The human decides. Gauntlet informs.
-
-### Identity verification
-
-Blockchain-based identity oracles allow Gauntlet to verify claimed identities cryptographically. A message claiming to be from a bank that cannot produce a valid on-chain signature is flagged regardless of how convincing the content is.
-
----
-
-## Bidirectional analysis
-
-Current Gauntlet analyses inputs. Future Gauntlet analyses in both directions.
-
-### Output layer
-
-An injection that passes input analysis may still reveal itself in the output. Gauntlet can scan generated responses for:
-- Goal drift — response diverges from the stated task
-- Anomalous content — information that should not appear given the input
-- Code vulnerabilities — insecure patterns in generated code (CodeShield)
-
-### Reading the model's mind
-
-Some models expose internal signals via their API — logprobs, token probabilities, finish reasons. A model that has been successfully injected behaves differently from one that is processing a normal input. An injected model returning an unusually confident verdict on a borderline input is itself a signal.
-
-A small local classifier reads these signals passively, with no added latency. Optionally, a second LLM can be given the logprobs and asked to reason about what they reveal — one model judges the input, another judges the judge.
-
-This applies inside Gauntlet's own pipeline: when an LLM judge is used as an escalation step, its internal state is readable. An attacker who compromises the judge must also produce consistent logprob patterns — a significantly harder problem.
-
----
-
-## LLM operator
-
-Gauntlet produces detailed logs: which modules triggered, at what scores, on what input types, with what false positive rates. A human operator can tune the pipeline based on this data. A future LLM operator does this automatically.
-
-The LLM operator reads logs periodically and proposes or applies configuration changes:
-
-- *"pg2 triggered 847 times this week but pidd confirmed only 12 — pg2 threshold may be too low"*
-- *"false positive rate spiked after new product launch — benign_precision weight should increase"*
-
-**Two modes:**
-
-`advisory` — operator proposes, human approves. Suitable for production environments where changes have business impact.
-
-`autonomous` — operator adjusts parameters within defined bounds. Suitable when bounds are set conservatively.
-
-The yksisuuntainen principle applies: the operator can tighten configuration, never loosen it below the deployment minimum.
-
-Combined with the federated network, the LLM operator reads both local logs and network signals — optimising for the local deployment's specific traffic profile while benefiting from global threat intelligence.
-
----
-
-## Multimodal extension
-
-The structural disarming principle is not limited to text. Any modality that requires coherent structure to carry intent can be defended with the same approach.
-
-- **Image** — patch permutation instead of token shuffle
-- **Audio** — segment reordering
-- **Documents** — structural decomposition
-- **Video** — frame-level analysis
-
-The federated network extends naturally: an instance that detects a novel image-based injection shares the abstract structural signature, not the image itself.
-
-**Version roadmap:**
-
-- `v1` — text
-- `v2` — text + document structure
-- `v3` — multimodal
 
 ---
 
@@ -175,3 +58,95 @@ The federated network extends naturally: an instance that detects a novel image-
 - No one has built the federated layer yet — the window is open before large players close it with proprietary solutions
 
 The field has spent years trying to make models more secure from the inside. Gauntlet is the external layer the field has been missing.
+
+---
+
+# Part II — Possible Features
+
+*Ordered from near-term to speculative. Earlier items are close to current architecture. Later items require significant new infrastructure.*
+
+---
+
+## Output analysis *(near-term)*
+
+Current Gauntlet analyses inputs. An injection that passes input analysis may still reveal itself in the output. Gauntlet can scan generated responses for:
+
+- Goal drift — response diverges from the stated task
+- Anomalous content — information that should not appear given the input
+- Code vulnerabilities — insecure patterns in generated code (CodeShield)
+
+This closes the loop: input is checked before the model, output is checked after. An injection that survives the input layer still has to survive the output layer.
+
+---
+
+## LLM operator *(near-term)*
+
+Gauntlet produces detailed logs: which modules triggered, at what scores, on what input types, with what false positive rates. A human operator tunes the pipeline based on this data. A future LLM operator does it automatically.
+
+The LLM operator reads logs periodically and proposes or applies configuration changes:
+
+- *"pg2 triggered 847 times this week but pidd confirmed only 12 — pg2 threshold may be too low"*
+- *"false positive rate spiked after new product launch — benign_precision weight should increase"*
+
+`advisory` — operator proposes, human approves.
+`autonomous` — operator adjusts within defined bounds.
+
+The yksisuuntainen principle applies: the operator can tighten configuration, never loosen it below the deployment minimum.
+
+---
+
+## Social engineering defence *(medium-term)*
+
+Prompt injection and social engineering are the same problem at different levels. Both attempt to install a foreign intent into a trusted process. Gauntlet's structural analysis applies to both.
+
+Social engineering relies on urgency, authority, sympathy, and scarcity. These are detectable patterns. Critically: the more pressure an input applies, the stronger the signal. A message that creates extreme urgency and requests an irreversible action is not more likely to be legitimate — it is more likely to be an attack.
+
+**The attacker's most effective weapon is also their strongest signal.**
+
+In guardian mode, Gauntlet analyses incoming communications on behalf of a human user — not just inputs to an LLM. Gauntlet does not block the message. It annotates it: *"This message contains urgency signals combined with a financial request. Risk: high."* The human decides. Gauntlet informs.
+
+---
+
+## Multimodal extension *(medium-term)*
+
+The structural disarming principle is not limited to text. Any modality that requires coherent structure to carry intent can be defended with the same approach.
+
+- **Image** — patch permutation instead of token shuffle
+- **Audio** — segment reordering
+- **Documents** — structural decomposition
+- **Video** — frame-level analysis
+
+Version roadmap: `v1` text → `v2` text + document structure → `v3` multimodal.
+
+---
+
+## Federated threat network *(long-term)*
+
+No single operator can cover all languages, dialects, encodings, and cultural contexts. The federated network closes this gap: instances share abstract attack structures — not raw content — so every participant benefits from every discovery.
+
+The network can only tighten protection. No external signal can lower an instance's protection level below its local baseline. An attacker who floods the network with false signals drives all instances toward maximum scrutiny — the worst-case outcome of a poisoning attempt is degraded availability, not a security breach.
+
+Instances share the *structure* of an attack, not the content. Zero-knowledge proofs allow an instance to prove it has observed a pattern matching a known attack class without revealing the input itself.
+
+When multiple instances simultaneously report a novel attack pattern, the network enters elevated threat mode automatically. The analogy is an immune system that learns at population level.
+
+Not all threat intelligence is shareable. A three-ring model:
+
+- **Public core** — open to all, basic patterns, low barrier
+- **Private consortia** — banks, governments, sector-specific groups
+- **Bridge layer** — sufficiently anonymised signals graduate from private to public
+
+---
+
+## Blockchain trust model *(speculative)*
+
+The federated network requires trust infrastructure. Blockchain primitives map naturally onto the requirements:
+
+- **Staking + slashing** — instances post a bond. False signals result in slashing.
+- **On-chain reputation** — decaying trust score, inactive or inaccurate instances lose voting weight.
+- **Threshold voting** — a signal requires confirmation from multiple instances before propagating.
+- **Smart contract** — enforces additive-only protection level. Cannot be configured to lower scrutiny.
+- **ZK-proofs** — share attack signatures without exposing content.
+- **On-chain forensics** — honeypot data recorded immutably for later analysis.
+
+Public and private rings can coexist: private consortia enforce their own trust rules, public core is open. Sufficiently anonymised signals bridge between them.
